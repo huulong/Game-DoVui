@@ -1,23 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, ImageBackground, TouchableOpacity, Image, Dimensions, StatusBar } from 'react-native';
-import Truee from "./Truee";
-import False from "./False";
+import {
+  Text,
+  View,
+  StyleSheet,
+  ImageBackground,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+  StatusBar,
+} from 'react-native';
+import {shuffleArray} from "../function/shuffle";
+
+const data = require('../DataJson/DoVui.json'); // Import JSON data
 
 const { width, height } = Dimensions.get('window');
 
 const Question = () => {
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const data = require('../DataJson/DoVui.json'); // Import JSON data
+  const currentQuestion = data[currentQuestionIndex];
+
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [answerCorrect, setAnswerCorrect] = useState(null);
 
   const handleAnswer = (answerIndex) => {
+    const answerChoices = shuffleArray([currentQuestion.A, currentQuestion.B, currentQuestion.C, currentQuestion.D]);
     setSelectedAnswer(answerIndex);
+
+    if (answerChoices[answerIndex] === currentQuestion.DapAn) {
+      setAnswerCorrect(true);
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentLevel(currentLevel + 1);
+      setSelectedAnswer(null);
+      setAnswerCorrect(null);
+    } else {
+      setAnswerCorrect(false);
+    }
   };
 
   const getAnswerColor = (answerIndex) => {
     if (selectedAnswer === answerIndex) {
-      if (selectedAnswer === 1) {
+      if (answerCorrect) {
         return { imageSource: require('../assets/dapandung.png') };
       } else {
-        return { imageSource: require('../assets/da1.png') };
+        return { imageSource: require('../assets/dapandung.png') }; // Change this to an image for an incorrect answer
       }
     } else {
       return { imageSource: require('../assets/da1.png') };
@@ -35,53 +62,56 @@ const Question = () => {
               <Image source={require('../assets/1.png')} style={{ width: imageSize, height: imageSize }} />
             </TouchableOpacity>
           </View>
-          <View style={styles.idi}>
-            <TouchableOpacity>
-              <Image source={require('../assets/2.png')} style={{ width: imageSize, height: imageSize, marginLeft: -25 }} />
-            </TouchableOpacity>
-          </View>
-          <View>
-            <ImageBackground source={require('../assets/3.png')} style={styles.backgroundImage}>
-              <View style={styles.overlay}>
-                {/* fix đi dou moe */}
-                <Text style={styles.title}>Cấp độ 1</Text>
-                <Text style={styles.content}>Có 2 người bạn 1 người mù 1 người câm đi shopping. Câm mua cái nón thì lấy tay chỉ lên đầu còn Mù muốn mua kem đánh răng thì làm sao?</Text>
-              </View>
+          <View style={styles.overlay}>
+            <ImageBackground source={require('../assets/3.png')} style={styles.titleBackground} resizeMode="contain">
+              <Text style={styles.title}>{`Cấp độ ${currentLevel}`}</Text>
+              <Text style={styles.content}>{currentQuestion.CauHoi}</Text>
             </ImageBackground>
           </View>
           <View style={styles.container}>
-            <TouchableOpacity style={[styles.answer, getAnswerColor(0)]} onPress={() => handleAnswer(0)}>
-              <ImageBackground source={getAnswerColor(0).imageSource} style={styles.answerBackground} resizeMode="contain">
-                <View style={styles.circle}>
-                  <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>A</Text>
-                </View>
-                <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>Nguyễn Phúc Lâm</Text>
-              </ImageBackground>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.answer, getAnswerColor(1)]} onPress={() => handleAnswer(1)}>
-              <ImageBackground source={getAnswerColor(1).imageSource} style={styles.answerBackground} resizeMode="contain">
-                <View style={styles.circle}>
-                  <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>B</Text>
-                </View>
-                <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>Phùng Hữu Long</Text>
-              </ImageBackground>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.answer, getAnswerColor(2)]} onPress={() => handleAnswer(2)}>
-              <ImageBackground source={getAnswerColor(2).imageSource} style={styles.answerBackground} resizeMode="contain">
-                <View style={styles.circle}>
-                  <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>C</Text>
-                </View>
-                <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>Trần Nhật Tân Hiệp</Text>
-              </ImageBackground>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.answer, getAnswerColor(3)]} onPress={() => handleAnswer(3)}>
-              <ImageBackground source={getAnswerColor(3).imageSource} style={styles.answerBackground} resizeMode="contain">
-                <View style={styles.circle}>
-                  <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>D</Text>
-                </View>
-                <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>Khánh</Text>
-              </ImageBackground>
-            </TouchableOpacity>
+            {currentQuestion && currentQuestion.A && (
+                <TouchableOpacity style={[styles.answer, getAnswerColor(0)]} onPress={() => handleAnswer(0)}>
+                  <ImageBackground source={getAnswerColor(0).imageSource} style={styles.answerBackground} resizeMode="contain">
+                    <View style={styles.circle}>
+                      <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>A</Text>
+                    </View>
+                    <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>{currentQuestion.A}</Text>
+                  </ImageBackground>
+                </TouchableOpacity>
+            )}
+
+            {currentQuestion && currentQuestion.B && (
+                <TouchableOpacity style={[styles.answer, getAnswerColor(1)]} onPress={() => handleAnswer(1)}>
+                  <ImageBackground source={getAnswerColor(1).imageSource} style={styles.answerBackground} resizeMode="contain">
+                    <View style={styles.circle}>
+                      <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>B</Text>
+                    </View>
+                    <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>{currentQuestion.B}</Text>
+                  </ImageBackground>
+                </TouchableOpacity>
+            )}
+
+            {currentQuestion && currentQuestion.C && (
+                <TouchableOpacity style={[styles.answer, getAnswerColor(2)]} onPress={() => handleAnswer(2)}>
+                  <ImageBackground source={getAnswerColor(2).imageSource} style={styles.answerBackground} resizeMode="contain">
+                    <View style={styles.circle}>
+                      <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>C</Text>
+                    </View>
+                    <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>{currentQuestion.C}</Text>
+                  </ImageBackground>
+                </TouchableOpacity>
+            )}
+
+            {currentQuestion && currentQuestion.D && (
+                <TouchableOpacity style={[styles.answer, getAnswerColor(3)]} onPress={() => handleAnswer(3)}>
+                  <ImageBackground source={getAnswerColor(3).imageSource} style={styles.answerBackground} resizeMode="contain">
+                    <View style={styles.circle}>
+                      <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>D</Text>
+                    </View>
+                    <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>{currentQuestion.D}</Text>
+                  </ImageBackground>
+                </TouchableOpacity>
+            )}
           </View>
         </ImageBackground>
       </View>
@@ -106,16 +136,20 @@ const styles = StyleSheet.create({
     marginHorizontal: width * 0.08,
   },
   title: {
+    position: 'absolute',
+    top: '25%', // Adjust this value to control the vertical position
+    left: '35%',
     fontSize: width * 0.05,
     fontWeight: 'bold',
     color: '#FFFF00',
-    textAlign: 'center',
-    marginBottom: 10,
+    textAlign: 'center'
   },
   content: {
+    top:'50%',
     fontSize: width * 0.03,
     color: '#FF9900',
     textAlign: 'center',
+    marginBottom:'30%',
   },
   container: {
     flex: 1,
@@ -157,7 +191,12 @@ const styles = StyleSheet.create({
     fontSize: width * 0.03,
     color: '#FFF',
     paddingLeft: 40,
-  },
+  }, titleBackground: {
+    width:'100%',
+    height:'100%',
+    resizeMode:"repeat",
+  }
+
 });
 
 export default Question;
