@@ -15,10 +15,10 @@ const data = require('../DataJson/DoVui.json'); // Import JSON data
 
 const { width, height } = Dimensions.get('window');
 
-const Question = () => {
+const Question = ({navigation}) => {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const data = require('../DataJson/DoVui.json'); // Import JSON data
+ 
   const currentQuestion = data[currentQuestionIndex];
 
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -58,7 +58,7 @@ const Question = () => {
       <View>
         <ImageBackground source={require('../assets/bc2.png')} style={{ width: '100%', height: '100%' }}>
           <View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image source={require('../assets/1.png')} style={{ width: imageSize, height: imageSize }} />
             </TouchableOpacity>
           </View>

@@ -3,7 +3,7 @@ import React, { useEffect, useCallback } from 'react'
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 SplashScreen.preventAutoHideAsync();
-export default function HomeScreen() {
+export default function HomeScreen({navigation}) {
   const [fontsLoaded] = useFonts({
     'UTM-Cookies': require('../assets/fonts/UTM-Cookies.ttf'),
   });
@@ -43,7 +43,7 @@ export default function HomeScreen() {
           <Text style={styles.level}>Cấp độ 1</Text>
           </View>
 
-          <TouchableOpacity style={{flex:3}}onPress={() => Alert.alert('Có cái đéo')}>
+          <TouchableOpacity style={{flex:3}} onPress={() => navigation.navigate('Question')}>
           <Image  source={require('../assets/buttom1.png')} style={{width:'100%',height:'100%',resizeMode:'contain',marginTop:120}}/>
           <View style={{position:'absolute',top:0,bottom:0,left:0,right:0,justifyContent:'center',alignItems:'center'}}>
             <Text style={{fontSize:50,color:'pink',textAlign:'center',fontFamily:'UTM-Cookies',marginTop:210}}>Vào Game</Text>
