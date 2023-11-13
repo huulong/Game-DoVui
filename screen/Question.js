@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  StatusBar,
+  StatusBar, ImageBase,
 } from 'react-native';
 import {shuffleArray} from "../function/shuffle";
 
@@ -18,7 +18,7 @@ const { width, height } = Dimensions.get('window');
 const Question = ({navigation}) => {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
- 
+
   const currentQuestion = data[currentQuestionIndex];
 
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -59,8 +59,11 @@ const Question = ({navigation}) => {
         <ImageBackground source={require('../assets/bc2.png')} style={{ width: '100%', height: '100%' }}>
           <View>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Image source={require('../assets/1.png')} style={{ width: imageSize, height: imageSize }} />
+              <Image source={require('../assets/1.png')} style={{ width: imageSize * 0.4, height: imageSize * 0.4,top:'1%' }} />
             </TouchableOpacity>
+          </View>
+          <View style={styles.love}>
+            <ImageBackground source={require('../assets/love.png')} style={{ width: imageSize * 0.4, height: imageSize * 0.4 }} />
           </View>
           <View style={styles.overlay}>
             <ImageBackground source={require('../assets/3.png')} style={styles.titleBackground} resizeMode="contain">
@@ -158,8 +161,8 @@ const styles = StyleSheet.create({
   },
   answer: {
     borderColor: '#000',
-    paddingVertical: height * 0.02,
-    paddingHorizontal: width * 0.05,
+    paddingVertical: height * 0.01,
+    paddingHorizontal: width * 0.03,
     marginBottom: height * 0.01,
     flexDirection: 'row',
     alignItems: 'center',
@@ -181,9 +184,12 @@ const styles = StyleSheet.create({
     marginLeft: width * 0.03,
   },
   answerText: {
-    paddingLeft:30,
-    fontSize: width * 0.2,
+    marginLeft:'80%',
+    marginBottom:'15%',
+    fontWeight:'bold',
+    fontSize: width * 0.4,
     color: '#FFFF00',
+    left: '85%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -195,6 +201,11 @@ const styles = StyleSheet.create({
     width:'100%',
     height:'100%',
     resizeMode:"repeat",
+  },
+  love: {
+    left:'45%',
+    marginBottom:'5%',
+    bottom:'3%',
   }
 
 });
