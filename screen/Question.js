@@ -9,8 +9,10 @@ import {
   Dimensions,
   StatusBar, ImageBase,
 } from 'react-native';
-import {shuffleArray} from "../function/shuffle";
-
+import {shuffleAnswers} from "../function/shuffleAnswers";
+import { useFonts } from 'expo-font';
+import {saveGameData} from "../function/GameDataStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const data = require('../DataJson/DoVui.json'); // Import JSON data
 
 const { width, height } = Dimensions.get('window');
@@ -18,14 +20,34 @@ const { width, height } = Dimensions.get('window');
 const Question = ({navigation}) => {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-
   const currentQuestion = data[currentQuestionIndex];
-
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [answerCorrect, setAnswerCorrect] = useState(null);
+  const [questionData, setQuestionData] = useState([]); // Lưu câu hỏi và câu trả lời
+  const [fontsLoaded] = useFonts({
+    'UTm-Cookies': require('../assets/fonts/UTM-Cookies.ttf'),
+  });
+  useEffect(() => {
+    // Lấy dữ liệu câu hỏi từ AsyncStorage dựa trên cấp độ hiện tại
+    const fetchQuestionData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem(`level_${currentLevel}_questions`);
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          setQuestionData(parsedData);
+          setCurrentQuestionIndex(0); // Đặt lại chỉ số câu hỏi khi chuyển cấp độ
+        }
+      } catch (error) {
+        console.error('Error loading question data:', error);
+      }
+    };
 
+    fetchQuestionData();
+  }, [currentLevel]);
   const handleAnswer = (answerIndex) => {
-    const answerChoices = shuffleArray([currentQuestion.A, currentQuestion.B, currentQuestion.C, currentQuestion.D]);
+    const answerChoices = shuffleAnswers(currentQuestion);
+    console.log('Current question:', currentQuestion);
+    console.log('Shuffled answers:', answerChoices);
     setSelectedAnswer(answerIndex);
 
     if (answerChoices[answerIndex] === currentQuestion.DapAn) {
@@ -38,6 +60,13 @@ const Question = ({navigation}) => {
       setAnswerCorrect(false);
     }
   };
+
+
+  useEffect(() => {
+    // Khi currentLevel thay đổi (người chơi hoàn thành một cấp độ), lưu dữ liệu game
+    const gameData = { level: currentLevel};
+    saveGameData(gameData); // Lưu dữ liệu game khi cấp độ thay đổi
+  }, [currentLevel]);
 
   const getAnswerColor = (answerIndex) => {
     if (selectedAnswer === answerIndex) {
@@ -53,7 +82,9 @@ const Question = ({navigation}) => {
 
   const imageSize = width * 0.15;
   const answerOptionFontSize = width * 0.03;
-
+  if (!fontsLoaded) {
+    return null; // Loading fonts
+  }
   return (
       <View>
         <ImageBackground source={require('../assets/bc2.png')} style={{ width: '100%', height: '100%' }}>
@@ -64,6 +95,9 @@ const Question = ({navigation}) => {
           </View>
           <View style={styles.love}>
             <ImageBackground source={require('../assets/love.png')} style={{ width: imageSize * 0.4, height: imageSize * 0.4 }} />
+          </View>
+          <View style={styles.share}>
+            <ImageBackground source={require('../assets/2.png')} style={{ width: imageSize * 0.4, height: imageSize * 0.4 }} />
           </View>
           <View style={styles.overlay}>
             <ImageBackground source={require('../assets/3.png')} style={styles.titleBackground} resizeMode="contain">
@@ -111,7 +145,7 @@ const Question = ({navigation}) => {
                     <View style={styles.circle}>
                       <Text style={[styles.answerText, { fontSize: answerOptionFontSize }]}>D</Text>
                     </View>
-                    <Text style={[styles.answerOption, { fontSize: answerOptionFontSize }]}>{currentQuestion.D}</Text>
+                    <Text style={[styles.answerOption, { fontSize: answerOptionFontSize, }]}>{currentQuestion.D}</Text>
                   </ImageBackground>
                 </TouchableOpacity>
             )}
@@ -143,13 +177,14 @@ const styles = StyleSheet.create({
     top: '25%', // Adjust this value to control the vertical position
     left: '35%',
     fontSize: width * 0.05,
-    fontWeight: 'bold',
     color: '#FFFF00',
+    fontFamily:'UTM-Cookies',
     textAlign: 'center'
   },
   content: {
+    fontFamily:'UTM-Cookies',
     top:'50%',
-    fontSize: width * 0.03,
+    fontSize: width * 0.04,
     color: '#FF9900',
     textAlign: 'center',
     marginBottom:'30%',
@@ -186,7 +221,7 @@ const styles = StyleSheet.create({
   answerText: {
     marginLeft:'80%',
     marginBottom:'15%',
-    fontWeight:'bold',
+    fontFamily:'UTM-Cookies',
     fontSize: width * 0.4,
     color: '#FFFF00',
     left: '85%',
@@ -196,6 +231,7 @@ const styles = StyleSheet.create({
   answerOption: {
     fontSize: width * 0.03,
     color: '#FFF',
+    fontWeight:'bold',
     paddingLeft: 40,
   }, titleBackground: {
     width:'100%',
@@ -206,8 +242,11 @@ const styles = StyleSheet.create({
     left:'45%',
     marginBottom:'5%',
     bottom:'3%',
-  }
+  },
+share:{
+    left:'90%',
 
+}
 });
 
 export default Question;
